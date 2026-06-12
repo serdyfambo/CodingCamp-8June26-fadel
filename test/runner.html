@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense &amp; Budget Visualizer — Test Suite</title>
+
+    <!-- Jasmine 5.x (jsDelivr CDN) -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/jasmine.css"
+    />
+  </head>
+  <body>
+
+    <!-- Jasmine reporter output target -->
+    <div id="jasmine-reporter"></div>
+
+    <!-- Jasmine core scripts (order matters) -->
+    <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/jasmine.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/jasmine-html.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/boot0.js"></script>
+
+    <!-- fast-check (CDN) — must load before spec files -->
+    <script src="https://cdn.jsdelivr.net/npm/fast-check/lib/bundle/fast-check.min.js"></script>
+
+    <!-- Application source — exposes all services and controllers to specs -->
+    <script src="../js/app.js"></script>
+
+    <!-- Jasmine boot1 — starts the runner after all specs are registered -->
+    <script src="https://cdn.jsdelivr.net/npm/jasmine-core@5/lib/jasmine-core/boot1.js"></script>
+
+    <!-- Spec files -->
+    <script src="specs/storageService.spec.js"></script>
+    <script src="specs/expenseService.spec.js"></script>
+    <script src="specs/budgetService.spec.js"></script>
+    <script src="specs/categoryService.spec.js"></script>
+    <script src="specs/chartService.spec.js"></script>
+    <script src="specs/themeController.spec.js"></script>
+    <script src="specs/appController.spec.js"></script>
+    <script src="specs/summaryView.spec.js"></script>
+
+  </body>
+</html>

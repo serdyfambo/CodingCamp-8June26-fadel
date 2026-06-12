@@ -1,0 +1,1064 @@
+/* ==========================================================================
+   Expense & Budget Visualizer — css/style.css
+   ==========================================================================
+   Sections:
+     1. CSS Custom Properties (Light theme / Dark theme overrides)
+     2. Base Reset & Normalize
+     3. Typography
+     4. Responsive Layout Scaffolding (min-width: 320px)
+     5. Landmark Regions (header, nav, main, footer)
+     6. Utility Classes (buttons, forms, error states)
+     7. Component Styles (transaction list, budget panel, summary, charts)
+     8. Accessibility Helpers
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. CSS Custom Properties
+   ========================================================================== */
+
+:root {
+  /* ── Colour palette — Light theme ── */
+  --color-bg:       #f5f7fa;   /* page background */
+  --color-surface:  #ffffff;   /* card / panel background */
+  --color-text:     #1a1a2e;   /* primary text */
+  --color-text-muted: #6b7280; /* secondary / placeholder text */
+  --color-border:   #d1d5db;   /* input borders, dividers */
+
+  --color-primary:  #4f46e5;   /* indigo — CTAs, links, active states */
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #eef2ff;
+
+  --color-danger:   #dc2626;   /* red — errors, delete actions */
+  --color-danger-light: #fef2f2;
+  --color-warning:  #d97706;   /* amber — over-budget indicators */
+  --color-warning-light: #fffbeb;
+  --color-success:  #16a34a;   /* green — positive states */
+
+  /* ── Chart colours ── */
+  --color-chart-1: #4f46e5;
+  --color-chart-2: #06b6d4;
+  --color-chart-3: #10b981;
+  --color-chart-4: #f59e0b;
+  --color-chart-5: #ef4444;
+  --color-chart-6: #8b5cf6;
+
+  /* ── Spacing scale ── */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* ── Typography ── */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+               "Liberation Mono", Menlo, monospace;
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+
+  /* ── Borders & Shadows ── */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  /* ── Layout ── */
+  --max-content-width: 1200px;
+  --header-height: 3.5rem;
+  --nav-width: 220px;
+
+  /* ── Transitions ── */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+}
+
+/* ── Dark theme overrides ── */
+[data-theme="dark"] {
+  --color-bg:       #0f0f1a;
+  --color-surface:  #1e1e2e;
+  --color-text:     #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-border:   #374151;
+
+  --color-primary:  #818cf8;
+  --color-primary-hover: #a5b4fc;
+  --color-primary-light: #1e1b4b;
+
+  --color-danger:   #f87171;
+  --color-danger-light: #2d1b1b;
+  --color-warning:  #fbbf24;
+  --color-warning-light: #2d2006;
+  --color-success:  #4ade80;
+
+  /* ── Chart colours (slightly lighter for dark bg) ── */
+  --color-chart-1: #818cf8;
+  --color-chart-2: #22d3ee;
+  --color-chart-3: #34d399;
+  --color-chart-4: #fbbf24;
+  --color-chart-5: #f87171;
+  --color-chart-6: #a78bfa;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+}
+
+
+/* ==========================================================================
+   2. Base Reset & Normalize
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Prevent iOS font-size inflation */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Smooth scrolling unless reduced-motion is preferred */
+  scroll-behavior: smooth;
+  min-width: 320px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  min-width: 320px;
+  min-height: 100dvh;
+  /* Prevent horizontal overflow at narrow widths */
+  overflow-x: hidden;
+  transition: background-color var(--transition-base),
+              color var(--transition-base);
+}
+
+/* Sensible media defaults */
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Form elements inherit font from body */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Remove default list styles where semantic lists are styled as UI components */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Remove link underlines; keep colour */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration: underline;
+}
+
+/* Remove default heading sizes — we set them explicitly */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-6) 0;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* SVG in charts: prevent extra space below inline elements */
+svg {
+  overflow: visible;
+}
+
+
+/* ==========================================================================
+   3. Typography
+   ========================================================================== */
+
+h1 { font-size: clamp(var(--text-xl), 4vw, var(--text-2xl)); }
+h2 { font-size: clamp(var(--text-lg), 3vw, var(--text-xl));  }
+h3 { font-size: var(--text-lg); }
+
+p { margin-bottom: var(--space-4); }
+p:last-child { margin-bottom: 0; }
+
+.text-sm    { font-size: var(--text-sm); }
+.text-xs    { font-size: var(--text-xs); }
+.text-muted { color: var(--color-text-muted); }
+
+
+/* ==========================================================================
+   4. Responsive Layout Scaffolding
+   ========================================================================== */
+
+/* ── App shell grid ──
+   Mobile-first: single column.
+   ≥ 768 px: sidebar nav + main content side by side.
+   ≥ 1024 px: wider nav column.
+*/
+.app-shell {
+  display: grid;
+  grid-template-areas:
+    "header"
+    "nav"
+    "main"
+    "footer";
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto 1fr auto;
+  min-height: 100dvh;
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    grid-template-areas:
+      "header header"
+      "nav    main"
+      "footer footer";
+    grid-template-columns: var(--nav-width) 1fr;
+    grid-template-rows: var(--header-height) 1fr auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    --nav-width: 240px;
+  }
+}
+
+/* ── Content container ── */
+.container {
+  width: 100%;
+  max-width: var(--max-content-width);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-inline: var(--space-6);
+  }
+}
+
+/* ── Generic flex helpers ── */
+.flex         { display: flex; }
+.flex-col     { flex-direction: column; }
+.flex-wrap    { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.items-start  { align-items: flex-start; }
+.justify-between { justify-content: space-between; }
+.justify-end     { justify-content: flex-end; }
+.gap-1  { gap: var(--space-1); }
+.gap-2  { gap: var(--space-2); }
+.gap-3  { gap: var(--space-3); }
+.gap-4  { gap: var(--space-4); }
+
+/* ── Generic grid helpers ── */
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+/* ── Spacing helpers ── */
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-4 { margin-bottom: var(--space-4); }
+.p-4  { padding: var(--space-4); }
+
+
+/* ==========================================================================
+   5. Landmark Regions
+   ========================================================================== */
+
+/* ── Header ── */
+header {
+  grid-area: header;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  padding-inline: var(--space-4);
+  gap: var(--space-4);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background-color var(--transition-base),
+              border-color var(--transition-base);
+}
+
+.header-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-primary);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Navigation ── */
+nav {
+  grid-area: nav;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-2) var(--space-4);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  transition: background-color var(--transition-base),
+              border-color var(--transition-base);
+}
+
+@media (min-width: 768px) {
+  nav {
+    flex-direction: column;
+    border-bottom: none;
+    border-right: 1px solid var(--color-border);
+    padding: var(--space-4) var(--space-2);
+    gap: var(--space-1);
+    position: sticky;
+    top: var(--header-height);
+    height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+  }
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  background: none;
+  text-align: left;
+  width: 100%;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.nav-link[aria-current="page"] {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ── Main content ── */
+main {
+  grid-area: main;
+  padding: var(--space-6) var(--space-4);
+  min-width: 0; /* prevent grid blowout */
+}
+
+@media (min-width: 640px) {
+  main {
+    padding: var(--space-8) var(--space-6);
+  }
+}
+
+/* ── Footer ── */
+footer {
+  grid-area: footer;
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  transition: background-color var(--transition-base),
+              border-color var(--transition-base);
+}
+
+
+/* ==========================================================================
+   6. Utility Classes — Buttons
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.5;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast),
+              box-shadow var(--transition-fast);
+  /* Minimum tap target: 44 × 44 px (WCAG 2.5.5) */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Primary */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+/* Secondary / ghost */
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+}
+
+/* Danger */
+.btn-danger {
+  background-color: var(--color-danger);
+  color: #ffffff;
+  border-color: var(--color-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+/* Ghost / icon-only */
+.btn-ghost {
+  background-color: transparent;
+  border-color: transparent;
+  color: var(--color-text-muted);
+  padding: var(--space-2);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* Small variant */
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+  min-height: 2rem;
+}
+
+/* Theme toggle button */
+.btn-theme-toggle {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  padding: var(--space-2);
+  cursor: pointer;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast),
+              border-color var(--transition-fast);
+}
+
+.btn-theme-toggle:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.btn-theme-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+
+/* ==========================================================================
+   6b. Utility Classes — Forms
+   ========================================================================== */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 480px) {
+  .form-row-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.field-label .required-mark {
+  color: var(--color-danger);
+  margin-inline-start: var(--space-1);
+  aria-hidden: "true";
+}
+
+.field-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  min-height: 2.75rem;
+  transition: border-color var(--transition-fast),
+              box-shadow var(--transition-fast),
+              background-color var(--transition-base);
+}
+
+.field-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(79 70 229 / 0.15);
+}
+
+[data-theme="dark"] .field-input:focus {
+  box-shadow: 0 0 0 3px rgb(129 140 248 / 0.2);
+}
+
+/* Validation states */
+.field-input[aria-invalid="true"],
+.field-input.is-invalid {
+  border-color: var(--color-danger);
+}
+
+.field-input[aria-invalid="true"]:focus,
+.field-input.is-invalid:focus {
+  box-shadow: 0 0 0 3px rgb(220 38 38 / 0.15);
+}
+
+.field-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--color-bg);
+}
+
+/* Inline field error message */
+.field-error {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 1.25rem; /* reserve space to prevent layout shift */
+}
+
+.field-error:empty {
+  display: none;
+}
+
+/* Form actions row */
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  padding-top: var(--space-2);
+}
+
+
+/* ==========================================================================
+   6c. Utility Classes — Error / Status States
+   ========================================================================== */
+
+/* Persistent error banner (injected by showErrorBanner) */
+#error-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-danger-light);
+  border-bottom: 2px solid var(--color-danger);
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+[data-theme="dark"] #error-banner {
+  color: #fca5a5;
+}
+
+#error-banner .error-banner-message {
+  flex: 1;
+}
+
+#error-banner .error-banner-dismiss {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  min-height: 1.5rem;
+  min-width: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Over-budget warning indicator */
+.over-budget-icon {
+  color: var(--color-warning);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.over-budget-row {
+  background-color: var(--color-warning-light) !important;
+  color: var(--color-text);
+}
+
+/* Loading spinner */
+[role="status"].spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Empty state placeholder */
+.empty-state {
+  text-align: center;
+  padding: var(--space-10) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+
+/* ==========================================================================
+   7. Component Styles
+   ========================================================================== */
+
+/* ── Card / Surface ── */
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+  transition: background-color var(--transition-base),
+              border-color var(--transition-base);
+}
+
+/* ── Section heading ── */
+.section-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+  color: var(--color-text);
+}
+
+/* ── Transaction list ── */
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.transaction-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast),
+              border-color var(--transition-fast);
+}
+
+@media (max-width: 479px) {
+  .transaction-item {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+  }
+
+  .transaction-item .transaction-actions {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+}
+
+.transaction-item:hover {
+  border-color: var(--color-primary);
+}
+
+.transaction-date {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.transaction-title {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transaction-category {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.transaction-amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.transaction-actions {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* ── Budget panel ── */
+.budget-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.budget-row:last-child {
+  border-bottom: none;
+}
+
+.budget-category-name {
+  font-weight: 500;
+  font-size: var(--text-sm);
+}
+
+.budget-input-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.budget-input {
+  width: 8rem;
+  text-align: right;
+}
+
+/* ── Summary table ── */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.summary-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.summary-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-table tr:last-child td {
+  border-bottom: none;
+}
+
+.summary-table tr.over-budget-row td {
+  background-color: var(--color-warning-light);
+}
+
+.summary-amount-negative {
+  color: var(--color-danger);
+}
+
+/* ── Category manager ── */
+.category-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+}
+
+.category-item.is-default {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.add-category-form {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.add-category-form .field-input {
+  flex: 1;
+  min-width: 160px;
+}
+
+/* ── Month navigation ── */
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.month-nav time {
+  font-weight: 600;
+  font-size: var(--text-base);
+  min-width: 7rem;
+  text-align: center;
+}
+
+/* ── Chart panel ── */
+.chart-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .chart-panel {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chart-container {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-container svg {
+  width: 100%;
+  height: auto;
+  max-width: 320px;
+}
+
+/* Chart tooltip */
+#chart-tooltip {
+  position: absolute;
+  z-index: 200;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  white-space: nowrap;
+  color: var(--color-text);
+  max-width: 200px;
+}
+
+/* Chart legend */
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.chart-legend-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+
+/* ==========================================================================
+   8. Accessibility Helpers
+   ========================================================================== */
+
+/* Visually hidden but available to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus ring visible on keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Remove focus ring for mouse/touch users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip-to-main link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 9999;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Reduced motion: disable all non-essential transitions */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

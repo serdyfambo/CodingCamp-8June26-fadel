@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validation Function Verification</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+    .test { margin: 10px 0; padding: 10px; border-left: 4px solid #ccc; }
+    .pass { border-color: green; background: #e8f5e9; }
+    .fail { border-color: red; background: #ffebee; }
+    h2 { margin-top: 30px; }
+    .summary { font-size: 20px; font-weight: bold; margin: 20px 0; padding: 15px; }
+  </style>
+</head>
+<body>
+  <h1>validateExpenseFields Verification</h1>
+  <div id="results"></div>
+  <div id="summary"></div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    var results = document.getElementById('results');
+    var summary = document.getElementById('summary');
+    var passCount = 0;
+    var failCount = 0;
+    
+    function log(testName, passed, details) {
+      var div = document.createElement('div');
+      div.className = 'test ' + (passed ? 'pass' : 'fail');
+      div.innerHTML = '<strong>' + (passed ? '✓' : '✗') + ' ' + testName + '</strong><br>' + details;
+      results.appendChild(div);
+      
+      if (passed) passCount++;
+      else failCount++;
+    }
+    
+    function testValidation(name, fields, expectedErrorMessage) {
+      try {
+        window.__testValidateExpenseFields(fields);
+        
+        if (expectedErrorMessage) {
+          log(name, false, 'Expected error: "' + expectedErrorMessage + '" but no error was thrown');
+        } else {
+          log(name, true, 'Validation passed as expected');
+        }
+      } catch (e) {
+        if (expectedErrorMessage) {
+          if (e.message === expectedErrorMessage) {
+            log(name, true, 'Threw expected error: "' + e.message + '"');
+          } else {
+            log(name, false, 'Expected: "' + expectedErrorMessage + '"<br>Got: "' + e.message + '"');
+          }
+        } else {
+          log(name, false, 'Unexpected error: ' + e.message);
+        }
+      }
+    }
+    
+    // Valid baseline
+    var validFields = {
+      title: 'Grocery shopping',
+      amount: 45.50,
+      date: '2024-01-01',
+      category: 'Food'
+    };
+    
+    // === Title Validation Tests ===
+    var section = document.createElement('h2');
+    section.textContent = 'Title Validation';
+    results.appendChild(section);
+    
+    testValidation('Valid title', validFields, null);
+    testValidation('Empty title', {...validFields, title: ''}, 'Expense title cannot be empty.');
+    testValidation('Whitespace-only title', {...validFields, title: '   '}, 'Expense title cannot be empty.');
+    testValidation('Title exactly 100 chars', {...validFields, title: 'a'.repeat(100)}, null);
+    testValidation('Title 101 chars', {...validFields, title: 'a'.repeat(101)}, 'Expense title cannot exceed 100 characters.');
+    testValidation('Missing title', {amount: 10, date: '2024-01-01', category: 'Food'}, 'Expense title cannot be empty.');
+    
+    // === Amount Validation Tests ===
+    section = document.createElement('h2');
+    section.textContent = 'Amount Validation';
+    results.appendChild(section);
+    
+    testValidation('Valid amount 0.01', {...validFields, amount: 0.01}, null);
+    testValidation('Valid amount 999999.99', {...validFields, amount: 999999.99}, null);
+    testValidation('Valid amount 100.50', {...validFields, amount: 100.50}, null);
+    testValidation('Valid amount integer', {...validFields, amount: 100}, null);
+    testValidation('Amount 0.001', {...validFields, amount: 0.001}, 'Expense amount must be between 0.01 and 999,999.99.');
+    testValidation('Amount 1000000', {...validFields, amount: 1000000}, 'Expense amount must be between 0.01 and 999,999.99.');
+    testValidation('Amount with 3 decimals', {...validFields, amount: 10.123}, 'Expense amount cannot have more than 2 decimal places.');
+    testValidation('Amount with 4 decimals', {...validFields, amount: 10.1234}, 'Expense amount cannot have more than 2 decimal places.');
+    testValidation('Non-numeric amount', {...validFields, amount: 'abc'}, 'Expense amount must be a valid number.');
+    testValidation('Amount as string', {...validFields, amount: '10.50'}, null);
+    
+    // === Date Validation Tests ===
+    section = document.createElement('h2');
+    section.textContent = 'Date Validation';
+    results.appendChild(section);
+    
+    var today = new Date();
+    var todayStr = today.toISOString().split('T')[0];
+    var yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    var yesterdayStr = yesterday.toISOString().split('T')[0];
+    var tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    var tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    testValidation('Today\'s date', {...validFields, date: todayStr}, null);
+    testValidation('Yesterday\'s date', {...validFields, date: yesterdayStr}, null);
+    testValidation('Future date', {...validFields, date: tomorrowStr}, 'Expense date cannot be in the future.');
+    testValidation('Invalid date string', {...validFields, date: 'not-a-date'}, 'Expense date must be a valid date.');
+    testValidation('Missing date', {title: 'Test', amount: 10, category: 'Food'}, 'Expense date is required.');
+    
+    // === Category Validation Tests ===
+    section = document.createElement('h2');
+    section.textContent = 'Category Validation';
+    results.appendChild(section);
+    
+    testValidation('Valid default category - Food', validFields, null);
+    testValidation('Valid default category - Transport', {...validFields, category: 'Transport'}, null);
+    testValidation('Invalid category', {...validFields, category: 'InvalidCategory'}, 'Expense category must be a valid category.');
+    testValidation('Missing category', {title: 'Test', amount: 10, date: '2024-01-01'}, 'Expense category is required.');
+    
+    // Add a custom category and test
+    try {
+      CategoryService.add('CustomCat');
+      testValidation('Valid custom category', {...validFields, category: 'CustomCat'}, null);
+    } catch (e) {
+      log('Custom category test', false, 'Could not add custom category: ' + e.message);
+    }
+    
+    // === Summary ===
+    summary.innerHTML = '<div class="summary">' +
+      'Tests Passed: ' + passCount + '<br>' +
+      'Tests Failed: ' + failCount + '<br>' +
+      'Total: ' + (passCount + failCount) +
+      '</div>';
+    
+    if (failCount === 0) {
+      summary.style.color = 'green';
+      summary.innerHTML += '<div style="font-size: 24px;">✓ All tests passed!</div>';
+    } else {
+      summary.style.color = 'red';
+      summary.innerHTML += '<div style="font-size: 24px;">✗ Some tests failed</div>';
+    }
+  </script>
+</body>
+</html>
